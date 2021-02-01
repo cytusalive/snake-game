@@ -31,6 +31,8 @@ class Field:
                 if type(self.field[y][x]) == int and self.field[y][x] > 0:
                     self.field[y][x] -= 1
 
+game = Field(15, 15)
+
 class Snake:
     def __init__(self):
         self.length = 10
@@ -41,16 +43,23 @@ class Snake:
     def move(self):
         # [LEFT, RIGHT, UP, DOWN]
         directions = [(self.xpos-1, self.ypos), (self.xpos+1, self.ypos), (self.xpos, self.ypos-1), (self.xpos, self.ypos+1)]
-        self.xpos, self.ypos = directions[self.direction]
+        x, y = directions[self.direction]
+        if x in range(game.xsize) and y in range(game.ysize):
+            if game.field[y][x] == 0:
+                self.xpos, self.ypos = x, y
+            else:
+                self.gameover()
+        else:
+            self.gameover()
     
-    def update(self, gamefield):
-        try:
-            gamefield.field[self.ypos][self.xpos] = self.length
-        except IndexError:
-            pygame.quit()
-            print("Game Over")
+    def update(self): 
+        game.field[self.ypos][self.xpos] = self.length
+        
+    def gameover(self):
+        pygame.quit()
+        print("Game Over, your length:", self.length)
 
-game = Field(15, 15)
+
 snake = Snake()
 
 
@@ -64,18 +73,22 @@ while True:
             if event.key == pygame.K_LEFT:
                 if snake.direction != 1:
                     snake.direction = 0
+                    break
             if event.key == pygame.K_RIGHT:
                 if snake.direction != 0:
                     snake.direction = 1
+                    break
             if event.key == pygame.K_UP:
                 if snake.direction != 3:
                     snake.direction = 2
+                    break
             if event.key == pygame.K_DOWN:
                 if snake.direction != 2:
                     snake.direction = 3
+                    break
     game.iterate()
     snake.move()
-    snake.update(game)
+    snake.update()
     game.drawfield()
     pygame.display.update()
     msElapsed = clock.tick(4)
